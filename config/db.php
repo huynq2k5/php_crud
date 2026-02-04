@@ -4,49 +4,65 @@ class KetNoi {
     private $user;
     private $pass;
     private $dbname;
+    private $port;
     private $conn;
 
     public function __construct() {
-        $this->host = getenv('DB_HOST') ?: "localhost";
-        $this->user = getenv('DB_USER') ?: "root";
-        $this->pass = getenv('DB_PASS') ?: "";
-        $this->dbname = getenv('DB_NAME') ?: "test";
+        $this->host = getenv('DB_HOST');
+        $this->user = getenv('DB_USER');
+        $this->pass = getenv('DB_PASS');
+        $this->dbname = getenv('DB_NAME');
+        $this->port = getenv('DB_PORT') ?: 25060;
         $this->moKetNoi();
     }
 
     public function moKetNoi() {
-        $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->dbname);
-        if ($this->conn->connect_error) {
-            die("Loi ket noi: " . $this->conn->connect_error);
+        $this->conn = mysqli_init();
+        if (!$this->conn) {
+            die("mysqli_init failed");
         }
+
+        mysqli_ssl_set($this->conn, NULL, NULL, NULL, NULL, NULL);
+
+        $resolved = mysqli_real_connect(
+            $this->conn, 
+            $this->host, 
+            $this->user, 
+            $this->pass, 
+            $this->dbname, 
+            $this->port, 
+            NULL, 
+            MYSQLI_CLIENT_SSL
+        );
+
+        if (!$resolved) {
+            die("Loi ket noi: " . mysqli_connect_error());
+        }
+        
         $this->conn->set_charset("utf8mb4");
     }
 
     public function truyVan($sql, $params = []) {
         $stmt = $this->conn->prepare($sql);
-        if ($params) {
-            $types = str_repeat('s', count($params)); 
+        if (!empty($params)) {
+            $types = str_repeat('s', count($params));
             $stmt->bind_param($types, ...$params);
         }
         $stmt->execute();
-        $kq = $stmt->get_result();
-        if ($kq === false) {
-            die("Loi truy van: " . $this->conn->error);
-        }
-        return $kq;
+        return $stmt->get_result();
     }
 
     public function capNhat($sql, $params = []) {
         $stmt = $this->conn->prepare($sql);
-        if ($params) {
+        if (!empty($params)) {
             $types = str_repeat('s', count($params));
             $stmt->bind_param($types, ...$params);
         }
-        $kq = $stmt->execute();
-        if ($kq === false) {
-            die("Loi cap nhat: " . $this->conn->error);
-        }
-        return $kq;
+        return $stmt->execute();
+    }
+
+    public function getConn() {
+        return $this->conn;
     }
 
     public function dongKetNoi() {
@@ -55,4 +71,3 @@ class KetNoi {
         }
     }
 }
-?>
