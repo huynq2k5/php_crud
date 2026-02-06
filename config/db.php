@@ -8,11 +8,11 @@ class KetNoi {
     private $conn;
 
     public function __construct() {
-        $this->host = getenv('DB_HOST');
-        $this->user = getenv('DB_USER');
-        $this->pass = getenv('DB_PASS');
-        $this->dbname = getenv('DB_NAME');
-        $this->port = getenv('DB_PORT') ?: 25060;
+        $this->host = getenv('DB_HOST') ?: 'localhost';
+        $this->user = getenv('DB_USER') ?: 'root';
+        $this->pass = getenv('DB_PASS') ?: '';
+        $this->dbname = getenv('DB_NAME') ?: 'test';
+        $this->port = getenv('DB_PORT') ?: 3306;
         $this->moKetNoi();
     }
 
