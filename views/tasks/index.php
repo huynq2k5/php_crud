@@ -35,5 +35,9 @@
         </tr>
         <?php endforeach; ?>
     </table>
+    <div style="text-align: right; margin-bottom: 20px;">
+        Xin chào, <b><?= $_SESSION['user_name'] ?? 'Khách' ?></b> (<?= $_SESSION['user_role'] ?? '' ?>) | 
+        <a href="logout" style="color: red;">Đăng xuất</a>
+    </div>
 </body>
 </html>
