@@ -47,7 +47,7 @@ switch ($action) {
     default:
         // Kiểm tra đăng nhập
         if (!isset($_SESSION['user_id'])) {
-            header("Location: ./index.php?url=login"); // Chuyển hướng rõ ràng hơn
+            header("Location: login"); // Chuyển hướng rõ ràng hơn
             exit();
         }
 
