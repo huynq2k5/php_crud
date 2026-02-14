@@ -42,7 +42,7 @@ class AuthController {
         
         // Chuyển hướng về trang đăng nhập
         // Dùng đường dẫn đầy đủ để đảm bảo chạy đúng trên mọi server
-        header("Location: ./index.php?url=login");
+        header("Location: ./login");
         exit();
     }
 
