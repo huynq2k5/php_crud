@@ -2,9 +2,8 @@
     Options -MultiViews
     RewriteEngine On
     
-    # --- DÒNG QUAN TRỌNG NHẤT CẦN SỬA ---
-    # Thay vì để "/" (gốc server), hãy để đường dẫn tới thư mục public của dự án
-    RewriteBase /php_crud/public/
+    # "/" (gốc server koyeb), "/php_crud/public/"  (gốc XAMPP)
+    RewriteBase /
     
     # Nếu không phải file thực
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -12,4 +11,5 @@
     
     # Thì viết lại URL
     RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
 </IfModule>
