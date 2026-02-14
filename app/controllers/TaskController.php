@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__ . '/../models/TaskModel.php';
+namespace App\Controllers;
+
+use App\Models\TaskModel;
 
 class TaskController {
     private $model;
@@ -9,23 +11,34 @@ class TaskController {
     }
 
     public function run($action, $id) {
+        // --- XỬ LÝ THÊM MỚI ---
         if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $content = trim($_POST['content'] ?? '');
             if ($content !== '') {
                 $this->model->add($content);
             }
-            header("Location: ./");
+            // Chuyển hướng về danh sách (dùng route list)
+            header("Location: ./list");
             exit();
         }
 
+        // --- XỬ LÝ XÓA ---
         if ($action === 'delete' && $id) {
             $this->model->delete($id);
-            header("Location: ../");
+            header("Location: ./list");
             exit();
         }
 
+        // --- MẶC ĐỊNH: HIỆN DANH SÁCH ---
         $tasks = $this->model->getAll();
-        include __DIR__ . '/../../views/tasks/index.php';
+        
+        // Gọi View
+        // Lưu ý: File này chạy từ public/index.php nên đường dẫn view phải lùi 2 cấp
+        if (file_exists(__DIR__ . '/../../views/tasks/index.php')) {
+            include __DIR__ . '/../../views/tasks/index.php';
+        } else {
+            echo "Lỗi: Không tìm thấy file view tại views/tasks/index.php";
+        }
     }
 }
 ?>

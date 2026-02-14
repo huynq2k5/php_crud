@@ -1,28 +1,35 @@
 <?php
-require_once __DIR__ . '/../../config/db.php';
+namespace App\Repositories;
 
-class UserModel {
+use Config\KetNoi;       // Sử dụng class kết nối DB
+use App\Models\User;     // Sử dụng Entity User
+
+class UserRepository implements IUserRepository {
     private $db;
 
     public function __construct() {
         $this->db = new KetNoi();
     }
 
-    // Lấy thông tin user + tên Role dựa vào username
-    public function getUserByUsername($username) {
+    public function findByUsername($username) {
+        // SQL Join để lấy luôn tên role
         $sql = "SELECT u.*, r.name as role_name 
                 FROM users u 
                 JOIN roles r ON u.role_id = r.id 
                 WHERE u.username = ?";
-        // Lưu ý: Class KetNoi của bạn ép kiểu params thành string ('s')
-        // Username là string nên OK.
+        
+        // Gọi hàm truyVan từ class KetNoi của bạn
         $result = $this->db->truyVan($sql, [$username]);
-        return $result->fetch_assoc();
+        $row = $result->fetch_assoc();
+
+        if ($row) {
+            // Quan trọng: Chuyển mảng thành Object User
+            return new User($row);
+        }
+        return null;
     }
 
-    // Lấy User dựa vào Token (Dùng cho Splash Screen)
-    public function getUserByToken($token) {
-        // SỬA: Thêm u.token_created_at vào SELECT
+    public function findByToken($token) {
         $sql = "SELECT u.id, u.username, u.full_name, u.role_id, u.token_created_at, r.name as role_name 
                 FROM users u 
                 JOIN roles r ON u.role_id = r.id 
@@ -31,17 +38,13 @@ class UserModel {
         return $result->fetch_assoc();
     }
 
-    // Cập nhật Token mới sau khi đăng nhập
     public function updateToken($userId, $token) {
-        // SỬA: Thêm cập nhật cột token_created_at bằng thời gian hiện tại (NOW())
+        // Cập nhật cả thời gian tạo token (NOW())
         $sql = "UPDATE users SET api_token = ?, token_created_at = NOW() WHERE id = ?";
-    
         return $this->db->capNhat($sql, [$token, $userId]);
     }
 
-    // Lấy danh sách Quyền (Permissions) của user
-    // App Android sẽ dùng list này để ẩn/hiện nút
-    public function getPermissionsByRoleId($roleId) {
+    public function getPermissions($roleId) {
         $sql = "SELECT p.code 
                 FROM permissions p
                 JOIN role_permissions rp ON p.id = rp.permission_id

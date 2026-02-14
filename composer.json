@@ -1,1 +1,13 @@
-{}
+{
+    "name": "huynguyen/project",
+    "description": "Web PHP MVC",
+    "require": {
+        "ext-mysqli": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Config\\": "config/"
+        }
+    }
+}

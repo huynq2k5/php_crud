@@ -1,4 +1,5 @@
 <?php
+namespace Config;
 class KetNoi {
     private $host;
     private $user;
@@ -32,7 +33,7 @@ class KetNoi {
             $this->dbname, 
             $this->port, 
             NULL, 
-            MYSQLI_CLIENT_SSL
+            //MYSQLI_CLIENT_SSL
         );
 
         if (!$resolved) {

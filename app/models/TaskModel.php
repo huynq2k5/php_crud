@@ -1,10 +1,13 @@
 <?php
-require_once __DIR__ . '/../../config/db.php';
+namespace App\Models;
+
+use Config\KetNoi;
 
 class TaskModel {
     private $db;
 
     public function __construct() {
+        // Gọi class kết nối thông qua Autoload
         $this->db = new KetNoi();
     }
 

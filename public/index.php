@@ -1,8 +1,19 @@
 <?php
-// Khởi động Session (Bắt buộc để nhớ đăng nhập)
+// Bật hiển thị lỗi để nếu có chết thì nó báo ngay chứ không treo
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 
-// Router đơn giản
+// Nạp Autoload
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// --- KHAI BÁO SỬ DỤNG CLASS ---
+use App\Controllers\AuthController;
+use App\Controllers\TaskController; 
+// (Lưu ý: Bạn phải chắc chắn file TaskController.php đã thêm 'namespace App\Controllers;' ở dòng đầu)
+
 $url = $_GET['url'] ?? 'list';
 $url = rtrim($url, '/');
 $url = explode('/', $url);
@@ -10,27 +21,36 @@ $url = explode('/', $url);
 $action = $url[0];
 $id = $url[1] ?? null;
 
-// Kiểm tra Action để gọi Controller tương ứng
 switch ($action) {
-    case 'login':   // Đăng nhập Web
-    case 'logout':  // Đăng xuất Web
-        require_once '../app/controllers/AuthController.php';
+    // --- DÀNH CHO API (MOBILE / TEST) ---
+    case 'api_login':   // URL: index.php?url=api_login
         $app = new AuthController();
-        if ($action == 'login') {
-            $app->webLogin();
-        } elseif ($action == 'logout') {
-            $app->logout();
-        }
+        $app->login();  // Gọi hàm trả về JSON
         break;
 
-    default: // Các chức năng Task (list, add, delete...)
-        // Kiểm tra: Nếu chưa đăng nhập thì đá về trang Login ngay
+    case 'check_auth':  // URL: index.php?url=check_auth
+        $app = new AuthController();
+        $app->checkToken();
+        break;
+
+    // --- DÀNH CHO WEB ---
+    case 'login':       // URL: index.php?url=login
+        $app = new AuthController();
+        $app->webLogin(); // Gọi hàm trả về HTML
+        break;
+
+    case 'logout':
+        $app = new AuthController();
+        $app->logout();
+        break;
+
+    default:
+        // Kiểm tra đăng nhập
         if (!isset($_SESSION['user_id'])) {
-            header("Location: ./login");
+            header("Location: ./index.php?url=login"); // Chuyển hướng rõ ràng hơn
             exit();
         }
 
-        require_once '../app/controllers/TaskController.php';
         $app = new TaskController();
         $app->run($action, $id);
         break;
